@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>clock</title>
+    <style>
+        #drawing1 {
+            position: absolute;
+            left: 600px;
+            top: 300px;
+            margin: 20px;
+        }
+
+        #drawing2 {
+            position: absolute;
+            left: 600px;
+            top: 300px;
+            margin: 20px;
+        }
+       #drawing3 {
+            position: absolute;
+            left: 600px;
+            top: 300px;
+            margin: 20px;
+        }
+       #drawing4{
+            position: absolute;
+            left: 600px;
+            top: 300px;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+	<canvas id = "drawing1" width = "200" height = "200"></canvas>
+	<canvas id = "drawing2" width = "200" height = "200"></canvas>
+	<canvas id = "drawing3" width = "200" height = "200"></canvas>
+	<canvas id = "drawing4" width = "200" height = "200"></canvas>
+	<script type="text/javascript">
+	var drawing1 = document.getElementById("drawing1")
+	var drawing2 = document.getElementById("drawing2")
+	var drawing3 = document.getElementById("drawing3")
+	var drawing4 = document.getElementById("drawing4")
+	var date = new Date()
+	var now = date.toLocaleTimeString()
+	var datetime = now.split(":")
+	var str = datetime[0].substr(0,2)
+	var hour = parseInt(datetime[0].substring(2))
+	var min = parseInt(datetime[1])
+	var sec = parseInt(datetime[2])
+	var secs = sec+1
+	var mins = min
+	var num = [6,5,4,3,2,1,12,11,10,9,8,7]
+	if(drawing1.getContext){//确认浏览器支持canvas
+		var circle = drawing1.getContext("2d")//画圆  
+		var sechand = drawing1.getContext("2d")//画秒针 圆和秒针是同一个canvas这里只是为了区分圆和秒针
+		var	minhand = drawing2.getContext("2d")//画分针
+		var hourhand = drawing3.getContext("2d")//画时针
+		var scale = drawing4.getContext("2d")//画刻度
+		circle.translate(100,100)//将坐标系原点设为100，100（原来为0,0）
+		circle.transform(1,0,0,-1,0,0)//将y轴的下半轴从正值变为负值 变为笛卡尔坐标系
+		minhand.translate(100,100)
+		minhand.transform(1,0,0,-1,0,0)
+		hourhand.translate(100,100)
+		hourhand.transform(1,0,0,-1,0,0)
+		scale.translate(100,100)
+		setInterval(function(){
+			circle.clearRect(-100,-100,200,200)//清除canvas 起点坐标 要删除的宽高
+			minhand.clearRect(-100,-100,200,200)
+			hourhand.clearRect(-100,-100,200,200)
+			scale.clearRect(-100,-100,200,200)
+
+			circle.beginPath()//开始路径
+			circle.arc(0,0,99,0,2*Math.PI,false)
+			circle.moveTo(94,0)//移动指定点
+			circle.arc(0,0,94,0,2*Math.PI,false)
+			circle.stroke()//画圆
+
+			sechand.beginPath()//开始路径
+			sechand.moveTo(0,0)
+			sechand.lineTo(85*Math.sin((sec+1)*Math.PI/30),85*Math.cos((sec+1)*Math.PI/30))//sin和cos以弧度计数 每秒钟转过的弧度为pi/30 因为延迟了一秒(setInterval不是立即执行的要等1000毫秒才执行)所以sec+1
+			sechand.rotate(-Math.PI/30)//整个坐标系顺时针旋转了6度 下一个直线是在已经旋转过后的坐标系中画出的 rotate以弧度计数
+			secs++
+			if(secs==60){
+				secs-=60
+			}
+			sechand.stroke()//画秒针
+
+			minhand.beginPath()//画分针
+			minhand.moveTo(0,0)
+			minhand.lineWidth = 3
+			minhand.lineTo(70*Math.sin(min*Math.PI/30),70*Math.cos(min*Math.PI/30))
+			if(secs%60==0){
+				minhand.rotate(-Math.PI/30)
+				mins++
+			}
+			minhand.stroke()
+
+			hourhand.beginPath()//画时针
+			hourhand.moveTo(0,0)
+			hourhand.lineWidth = 5
+			hourhand.lineTo(55*Math.sin((hour+mins/60)*Math.PI/6),55*Math.cos((hour+mins/60)*Math.PI/6))//通过mins调整直线的位置
+			hourhand.stroke()
+
+			scale.font = "bold 15px Arial"//画刻度
+			scale.textAlign = "center"
+			scale.textBaseline = "middle"
+			for(let i = 0;i < 12 ; i++){
+				scale.fillText(num[i],90*Math.sin(i*Math.PI/6),90*Math.cos(i*Math.PI/6))
+			}
+			
+		},1000)
+	}
+	</script>
+</body>
+</html>
